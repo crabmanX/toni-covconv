@@ -22,11 +22,13 @@ def resize_rotate_image(image: Image) -> Image:
     if h >= w:
         image = image.transpose(Image.ROTATE_90)
         w, h = image.size
-    fact = h / mm_to_px(STICKER_H)
+
+    fact_h = h / mm_to_px(STICKER_H)
+    fact_w = w / mm_to_px(STICKER_W)
+    fact = max(fact_w, fact_h)
     new_w = w / fact
     new_h = h / fact
-    if new_w > mm_to_px(STICKER_W):
-        raise NotImplementedError(f"image ratio not supported")
+
     image = image.resize(size=(int(new_w), int(new_h)))
 
     return image
@@ -38,13 +40,14 @@ def fill(image: Image) -> Image:
     image = image.resize(size=(mm_to_px(STICKER_W + 5), mm_to_px(STICKER_H + 5)))
     image = image.filter(GaussianBlur(radius=16))
     offset_x = int((mm_to_px(STICKER_W + 5) - ori_image.size[0]) / 2)
+    offset_y = int((mm_to_px(STICKER_H + 5) - ori_image.size[1]) / 2)
     image.paste(
         ori_image,
         (
             offset_x,
-            mm_to_px(2.5),
+            offset_y,
             offset_x + ori_image.size[0],
-            mm_to_px(2.5) + ori_image.size[1],
+            offset_y + ori_image.size[1],
         ),
     )
 
