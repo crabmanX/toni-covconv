@@ -1,13 +1,10 @@
 import argparse
-import logging
 from collections.abc import Iterable
 from itertools import zip_longest
 from pathlib import Path
 
 from PIL import Image
 from PIL.ImageFilter import GaussianBlur
-
-logger = logging.getLogger("cover-conv")
 
 DPI = 300
 STICKER_W = 83.8
@@ -89,7 +86,6 @@ def main():
         description="convert cover images to HERMA 5028 stickers"
     )
     parser.add_argument("--overwrite", action="store_true")
-    parser.add_argument("--debug", action="store_true")
     parser.add_argument(
         "input_file",
         type=lambda x: Path(x).expanduser().resolve(),
@@ -100,11 +96,6 @@ def main():
         type=lambda x: Path(x).expanduser().resolve(),
     )
     args = parser.parse_args()
-
-    if args.debug:
-        logging.basicConfig(level=logging.DEBUG)
-    else:
-        logging.basicConfig(level=logging.INFO)
 
     output_file = args.output_file
 
