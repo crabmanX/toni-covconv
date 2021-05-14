@@ -88,6 +88,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="convert cover images to HERMA 5028 stickers"
     )
+    parser.add_argument("--overwrite", action="store_true")
     parser.add_argument("--debug", action="store_true")
     parser.add_argument(
         "input_file",
@@ -113,6 +114,8 @@ def main():
     images = (stitch_images(ims) for ims in grouper(images, 3, None))
     for ii, im in enumerate(images):
         out_path = output_file.with_suffix(f".{ii}{output_file.suffix}")
+        if not args.overwrite and out_path.exists():
+            raise IOError(f'File "{out_path}" already exists')
         im.save(out_path)
 
 
