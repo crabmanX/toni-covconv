@@ -1,6 +1,7 @@
 import argparse
 import logging
 from collections.abc import Iterable
+from itertools import zip_longest
 from pathlib import Path
 
 from PIL import Image
@@ -11,6 +12,13 @@ logger = logging.getLogger("cover-conv")
 DPI = 300
 STICKER_W = 83.8
 STICKER_H = 50.8
+
+# from https://docs.python.org/3/library/itertools.html#itertools-recipes
+def grouper(iterable, n, fillvalue=None):
+    "Collect data into fixed-length chunks or blocks"
+    # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
+    args = [iter(iterable)] * n
+    return zip_longest(*args, fillvalue=fillvalue)
 
 
 def mm_to_px(x: float, dpi=DPI) -> int:
@@ -56,9 +64,10 @@ def fill(image: Image) -> Image:
 
 def stitch_images(images: Iterable[Image]) -> Image:
     page_im = Image.new(mode="RGB", size=(mm_to_px(210), mm_to_px(297)), color="white")
-    x_locs = [18.64, 18.64 + STICKER_W + 5.26]
-    y_locs = [21.5, 21.5 + 2 * STICKER_H, 21.5 + 4 * STICKER_H]
     for ii, im in enumerate(images):
+        if im is None:
+            break
+
         x_offset = mm_to_px(18.64 - 2.5)
         y_offset = mm_to_px(21.5 + 2 * STICKER_H * ii - 2.5)
         page_im.paste(
@@ -101,9 +110,10 @@ def main():
     images = (Image.open(p) for p in args.input_file)
     images = (resize_rotate_image(i) for i in images)
     images = (fill(i) for i in images)
-    output_image = stitch_images(images)
-
-    output_image.save(output_file)
+    images = (stitch_images(ims) for ims in grouper(images, 3, None))
+    for ii, im in enumerate(images):
+        out_path = output_file.with_suffix(f".{ii}{output_file.suffix}")
+        im.save(out_path)
 
 
 if __name__ == "__main__":
