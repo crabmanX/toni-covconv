@@ -1,16 +1,14 @@
 from setuptools import setup
 
 setup(
-    name='cover-conv',
-    version='',
-    packages=[''],
-    url='',
-    license='',
-    author='kilian',
-    author_email='',
-    description='',
+    name="toni-covconv",
+    version="",
+    packages=[""],
+    url="",
+    license="",
+    author="Kilian Lackhove",
+    author_email="kilian@lackhove.de",
+    description="",
     install_requires=["pillow"],
-    scripts=[
-        'cover-conv.py'
-    ]
+    scripts=["toni-covconv.py"],
 )
